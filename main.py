@@ -1,115 +1,41 @@
 # %%
-import requests
-
+import collections
+import json
+import os
+import pprint
+import sys
+import webbrowser
+from json.decoder import JSONDecodeError
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas
+import simplejson
+import spotipy
+import spotipy.util as util
+import yaml
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+import random
+randomint= (random.randint(0,10000))
 CLIENT_ID = '66da3fd147fb4433bf1a67a444f5d57e'
 CLIENT_SECRET = '1ca107b9f0114b00a43e7a81c44630e9'
+REDIRECT_URI = 'http://localhost:8080'
 
-AUTH_URL = 'https://accounts.spotify.com/api/token'
 
-# POST
-auth_response = requests.post(AUTH_URL, {
-    'grant_type': 'client_credentials',
-    'client_id': CLIENT_ID,
-    'client_secret': CLIENT_SECRET,
-})
+scope = "user-library-read"
 
-# convert the response to JSON
-auth_response_data = auth_response.json()
+# USER ID: 12151542744
 
-# save the access token
-access_token = auth_response_data['access_token']
+# pretty printer
+pp = pprint.PrettyPrinter()
+# SPOTIFY OBJECT  sp
+splibrary = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
+                                                      client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, scope=scope))
 
-headers = {
-    'Authorization': 'Bearer {token}'.format(token=access_token)
-}
 
-# base URL of all Spotify API endpoints
-BASE_URL = 'https://api.spotify.com/v1/'
-
-# Track ID from the URI
-track_id = '6y0igZArWVi6Iz0rj35c1Y'
-
-# actual GET request with proper header
-r = requests.get(BASE_URL + 'audio-features/' + track_id, headers=headers)
-
-r = r.json()
-r
-
-artist_id = '36QJpDe2go2KgaRleHCDTp'
-
-# pull all artists albums
-r = requests.get(BASE_URL + 'artists/' + artist_id + '/albums', 
-                 headers=headers, 
-                 params={'include_groups': 'album', 'limit': 50})
-d = r.json()
-
-for album in d['items']:
-    print(album['name'], ' --- ', album['release_date'])
+for batch in range(loops):
+    results = splibrary.current_user_saved_tracks(limit=_limit, offset=_offset)
+    data.append(results['items'])
     
-data = []   # will hold all track info
-albums = [] # to keep track of duplicates
-
-# loop over albums and get all tracks
-for album in d['items']:
-    album_name = album['name']
-
-    # here's a hacky way to skip over albums we've already grabbed
-    trim_name = album_name.split('(')[0].strip()
-    if trim_name.upper() in albums or int(album['release_date'][:4]) > 1983:
-        continue
-    albums.append(trim_name.upper()) # use upper() to standardize
     
-    # this takes a few seconds so let's keep track of progress    
-    print(album_name)
-    
-    # pull all tracks from this album
-    r = requests.get(BASE_URL + 'albums/' + album['id'] + '/tracks', 
-        headers=headers)
-    tracks = r.json()['items']
-    
-    for track in tracks:
-        # get audio features (key, liveness, danceability, ...)
-        f = requests.get(BASE_URL + 'audio-features/' + track['id'], 
-            headers=headers)
-        f = f.json()
-        
-        # combine with album info
-        f.update({
-            'track_name': track['name'],
-            'album_name': album_name,
-            'short_album_name': trim_name,
-            'release_date': album['release_date'],
-            'album_id': album['id']
-        })
-        
-        data.append(f)
-        
-
-import pandas as pd
-
-df = pd.DataFrame(data)
-
-
-# convert release_date to an actual date, and sort by it
-df['release_date'] = pd.to_datetime(df['release_date'])
-df = df.sort_values(by='release_date')
-
-# Zeppelin-specific: get rid of live album, remixes, vocal tracks, ...
- #df = df.query('short_album_name != "The Song Remains The Same"')
- #df = df[~df['track_name'].str.contains('Live|Mix|Track')]
-
-df.head()
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-plt.figure(figsize=(10,10))
-
-ax = sns.scatterplot(data=df, x='valence', y='acousticness', 
-                     hue='short_album_name', palette='rainbow', 
-                     size='duration_ms', sizes=(50,1000), 
-                     alpha=0.7)
-
-# display legend without `size` attribute
-h,labs = ax.get_legend_handles_labels()
-ax.legend(h[1:10], labs[1:10], loc='best', title=None)
+    with open('data.txt', 'w') as outfile:
+        json.dump(data, outfile)
