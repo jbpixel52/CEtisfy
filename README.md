@@ -1,2 +1,2 @@
 # CEtisfy
- ML and Research school project
+ ML and Research project for school purposes 
