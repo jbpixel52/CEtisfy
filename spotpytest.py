@@ -96,12 +96,12 @@ def regplot(df):
     sns.regplot(data=df, x='valence', y='tempo')
 
 
-
 def main():
-    loops =input('loops to do:')   
+    loops = input('loops to do:')
     make_dataframe(make_pandas(request_songs(50, int(loops))))
     pairplot(make_pandas(request_songs(50, int(loops))))
     regplot(make_pandas(request_songs(50, int(loops))))
-    
+
+
 main()
 # %%
