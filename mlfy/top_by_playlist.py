@@ -1,7 +1,7 @@
 # %%
 import json
 from json.decoder import JSONDecodeError
-
+from datetime import date
 import numpy as np
 import spotipy
 import spotipy.util as util
@@ -13,6 +13,8 @@ import id_getters
 CLIENT_ID = '66da3fd147fb4433bf1a67a444f5d57e'
 CLIENT_SECRET = '1ca107b9f0114b00a43e7a81c44630e9'
 REDIRECT_URI = 'http://localhost:8080'
+TODAY = date.today()
+
 scope = "user-library-read"
 splibrary = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                       client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, scope=scope))
@@ -50,16 +52,15 @@ def get_playlist_name(id):
 
 def make_countries_json():
     with open('./playlists/links.json', "r") as file:
-        links = file
-        print(links)
-
-
-    
-    #playlist_id = id_getters.get_playlists_id()
-    #songdata_json(playlist_id, request_playlist(playlist_id, 50, 1))
+        links = json.load(file)
+    for key in links['weeklies']:
+        value=links['weeklies'][key]
+        print(key," -> ",value)
+        playlist_id = id_getters.get_playlists_id(value)
+        songdata_json(playlist_id, request_playlist(playlist_id, 50, 1))
 
 def songdata_json(id, data):
-    filename = './playlists/'+str(get_playlist_name(id))+'.json'
+    filename = './playlists/'+str(get_playlist_name(id))+" "+TODAY.strftime("%b-%d-%Y")+'.json'
     print(filename)
     with open(filename, "w") as file:
         json.dump(data, file)
