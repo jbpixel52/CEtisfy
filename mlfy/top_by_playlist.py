@@ -48,6 +48,16 @@ def get_playlist_name(id):
     return (sp.playlist(id)['name'])
 
 
+def make_countries_json():
+    with open('./playlists/links.json', "r") as file:
+        links = file
+        print(links)
+
+
+    
+    #playlist_id = id_getters.get_playlists_id()
+    #songdata_json(playlist_id, request_playlist(playlist_id, 50, 1))
+
 def songdata_json(id, data):
     filename = './playlists/'+str(get_playlist_name(id))+'.json'
     print(filename)
@@ -56,8 +66,7 @@ def songdata_json(id, data):
 
 
 def main():
-    playlist_id = id_getters.get_playlists_id()
-    songdata_json(playlist_id, request_playlist(playlist_id, 50, 1))
+    make_countries_json()
 
 
 main()
