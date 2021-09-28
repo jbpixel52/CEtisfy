@@ -20,44 +20,32 @@ from sklearn.neighbors import KNeighborsRegressor
 app = dash.Dash(__name__)
 
 
-def make_pandas():
+def make_pandas(dir):
 
-    with open('./songdata.json') as f:
+    with open(dir) as f:
         songdata = json.load(f)
     df = pandas.DataFrame(songdata)
-    # pp.pprint(df)
-    dfcopy = df.squeeze()
-    # pp.pprint(dfcopy)
     return df
 
 
 def fig_regression():
-    # df = px.data.tips()
-    # X = df.total_bill.values.reshape(-1, 1)
-    df = make_pandas()
+    df = make_pandas('../playlists/Top Songs - USA Sep-27-2021.json')
+    dfy=make_pandas('../playlists/Top Songs - Mexico Sep-27-2021.json')
     X = df.valence.values.reshape(-1, 1)
-
+    Y = dfy.valence.values.reshape(-1,1)
     model = LinearRegression()
-    model.fit(X, df.energy)
+    model.fit(X, Y)
 
     x_range = np.linspace(X.min(), X.max(), 100)
     y_range = model.predict(x_range.reshape(-1, 1))
 
-    fig = px.scatter(df, x='valence', y='energy', opacity=0.65)
+    fig = px.scatter(df, x='valence', y='energy', opacity=1,hover_name='name')
     fig.add_traces(go.Scatter(x=x_range, y=y_range, name='Regression Fit'))
     fig.show()
 
 
-fig = px.scatter(make_pandas(), x="valence", y="energy",
-                 hover_name="name",
-                 log_x=True)
 fig_regression()
-app.layout = html.Div([
-    dcc.Graph(
-        id='life-exp-vs-gdp',
-        figure=fig
-    )
 
-])
+
 if __name__ == '__main__':
     app.run_server(debug=True)

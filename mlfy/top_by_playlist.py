@@ -1,13 +1,10 @@
 # %%
 import json
-from json.decoder import JSONDecodeError
 from datetime import date
 import numpy as np
 import spotipy
 import spotipy.util as util
-from sklearn.feature_extraction.text import CountVectorizer
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
-
 import id_getters
 
 CLIENT_ID = '66da3fd147fb4433bf1a67a444f5d57e'
@@ -16,10 +13,7 @@ REDIRECT_URI = 'http://localhost:8080'
 TODAY = date.today()
 
 scope = "user-library-read"
-splibrary = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
-                                                      client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, scope=scope))
-sptop = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
-                                                  client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI, scope='user-top-read'))
+
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI))
 
@@ -29,11 +23,10 @@ def request_playlist(id, _limit, loops):
 
     for batch in range(loops):
         results = sp.playlist_tracks(id, limit=50)
-        results = splibrary.current_user_saved_tracks(
-            limit=_limit, offset=batch*_limit)
+
         for i in range(_limit):
             song_id = results['items'][i]['track']['id']
-            feats = splibrary.audio_features(song_id)
+            feats = sp.audio_features(song_id)
             energy = feats[0]['energy']
             valence = feats[0]['valence']
             tempo = feats[0]['tempo']
