@@ -51,7 +51,7 @@ def make_countries_json():
         songdata_json(playlist_id, request_playlist(playlist_id, 50, 1))
 
 def songdata_json(id, data):
-    filename = './playlists/'+str(get_playlist_name(id))+" "+TODAY.strftime("%b-%d-%Y")+'.json'
+    filename = '../playlists/'+str(get_playlist_name(id))+" "+TODAY.strftime("%b-%d-%Y")+'.json'
     print(filename)
     with open(filename, "w") as file:
         json.dump(data, file)
