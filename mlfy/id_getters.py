@@ -14,7 +14,7 @@ def get_track_id(url):
     return url.replace('https://open.spotify.com/track/', '').split('?')[0]
 
 
-def get_track_id(url):
+def get_artist_id(url):
     return url.replace('https://open.spotify.com/artist/', '').split('?')[0]
 
 

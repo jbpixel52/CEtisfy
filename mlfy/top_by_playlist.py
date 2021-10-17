@@ -1,10 +1,8 @@
 # %%
 import json
 from datetime import date
-import numpy as np
 import spotipy
-import spotipy.util as util
-from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth
 import id_getters
 
 CLIENT_ID = '66da3fd147fb4433bf1a67a444f5d57e'
