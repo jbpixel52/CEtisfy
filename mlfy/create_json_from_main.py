@@ -1,7 +1,5 @@
 # %%
 import json
-from json.decoder import JSONDecodeError
-
 import numpy as np
 import spotipy
 import spotipy.util as util
