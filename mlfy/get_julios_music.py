@@ -39,3 +39,4 @@ for batch in range(loops):
     
     with open('data.txt', 'w') as outfile:
         json.dump(data, outfile)
+        
