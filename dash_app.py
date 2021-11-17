@@ -30,22 +30,26 @@ all_dims = [
 #                   y='energy', color='cluster', size='set',trendline='ols', template="plotly_dark")
 
 app = dash.Dash()
-app.layout = html.Div([
-    dcc.Dropdown(
-        id="dropdown",
-        options=[{"label": x, "value": x}
-                 for x in all_dims],
-        value=all_dims[:2],
-        multi=True
-    ),
-    dcc.Graph(id="splom"),
-])
+app.layout = html.Div([html.H1('MATRIX ', style={'backgroundColor': 'pink'}),
+                       dcc.Dropdown(style={'backgroundColor': 'pink'},
+                                    id="dropdown",
+                                    options=[{"label": x, "value": x}
+                                             for x in all_dims],
+                                    value=all_dims[:2],
+                                    multi=True
+                                    ),
+                       dcc.Graph(style={'backgroundColor': 'pink',
+                                 'margin': 'auto'}, id="splom"),
+                       ])
+
 
 @app.callback(
-    Output("splom", "figure"), 
+    Output("splom", "figure"),
     [Input("dropdown", "value")])
 def update_bar_chart(dims):
-    fig = px.scatter_matrix(data_frame=K.fullframe,dimensions=dims , color='cluster', size='set',template="plotly_dark")
+    fig = px.scatter_matrix(data_frame=K.fullframe, dimensions=dims,
+                            color='cluster', size='set', template="ggplot2")
+    fig.update_layout(width=1600, height=800)
     return fig
 
 

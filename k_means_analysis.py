@@ -16,7 +16,7 @@ class k_means_structure:
         self.countryframe = pd.DataFrame(pd.read_json(countrypath), columns=[
                                          'energy', 'valence', 'tempo', 'lenght', 'danceability', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness'])
         self.sampleframe['set'] = 2 # SET 2 -> BIG DATASET
-        self.countryframe['set'] = 60  # SET 20-> PER COUNTRY TOP 50
+        self.countryframe['set'] = 20  # SET 20-> PER COUNTRY TOP 50
         self.countryframe.rename(columns={'lenght': 'duration'}, inplace=True)
         self.countryframe['duration'] = self.countryframe['duration'].div(1000).round(2)
         
