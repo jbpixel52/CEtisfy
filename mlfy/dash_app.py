@@ -18,8 +18,10 @@ import plotly.express as px
 
 K =kma.k_means_structure()
 
-fig = px.scatter(data_frame=K.df_k_means.head(-1000),x="energy", y="us_popularity_estimate", color="cluster",
-                size='us_popularity_estimate')
+
+
+
+fig = px.scatter(data_frame=K.fullframe,x="energy",y='valence', color='cluster')
 fig.show()
 
 app = dash.Dash()
