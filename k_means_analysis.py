@@ -2,12 +2,9 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 import os
-from sklearn.metrics import accuracy_score
-import numpy as np
 datasetpath = 'tf_mini.csv'
-countrypath = 'playlists/Top Songs - Global Oct-26-2021.json'
 directory = os.fsencode('playlists')
-global descriptions
+global descriptions 
 descriptions = pd.DataFrame()
 global popular_clusters
 popular_clusters = {}
@@ -16,8 +13,15 @@ popular_clusters = {}
 
 class k_means_structure:
     def __init__(self, setpath, countrypath, countryname):
+        """[CONSTRUCTOR of KMA ]
+
+        Args:
+            setpath ([string]): [dataset relative path]
+            countrypath ([string]): [relative path of country data json]
+            countryname ([string]): [name of country less the jargon of filename]
+        """
         self.debug = False
-        self.sampleframe = pd.DataFrame(pd.read_csv(setpath).sample(n=500), columns=[
+        self.sampleframe = pd.DataFrame(pd.read_csv(setpath), columns=[
                                         'energy', 'valence', 'tempo', 'duration', 'danceability', 'key', 'loudness', 'speechiness', 'acousticness', 'instrumentalness', 'liveness'])  # removed 'us_popularity_estimate', and 'release year'
         self.countryname = countryname
         self.countryframe = pd.DataFrame(pd.read_json(countrypath), columns=[
@@ -28,24 +32,25 @@ class k_means_structure:
         self.countryframe['duration'] = self.countryframe['duration'].div(
             1000).round(2)
 
-        # self.countryframe.info()
         self.fullframe = pd.concat([self.countryframe, self.sampleframe])
-
-        # self.fullframe.info()
 
         self.kmeans = KMeans(n_clusters=2).fit(self.fullframe)
         self.fullframe['cluster'] = self.kmeans.labels_
         centroids = pd.DataFrame(self.kmeans.cluster_centers_)
-
+        
         if self.debug is True:
             # DEBUGGING PRINTS
             print(f"LABELS: {self.kmeans.labels_}")
             print(self.fullframe)
             print('COUNT PER CLUSTER', self.fullframe.groupby('cluster').count())
 
-        # FIND POPULAR CLUSTER
 
     def return_desc(self):
+        """[returns local copy of global variable country descriptions]
+
+        Returns:
+            [dict]: [statistical descriptions of every KMA per country]
+        """
         self.desc = self.fullframe.groupby('cluster').describe()
         self.desc['country'] = self.countryname[11:-17]
         global descriptions
@@ -54,27 +59,34 @@ class k_means_structure:
         return descriptions
 
     def decide_popular_cluster(self):
+        """[FIND THE MORE POPULAR CLUSTER PER COUNTRY]
+
+        Returns:
+            [dict]: [{country:popular_cluster}]
+        """
         global popular_clusters
-        
+
         cluster0 = 0
         cluster1 = 0
         for index, row in self.fullframe.iterrows():
             if row['cluster'] == 0 and row['set'] == 20:
-                cluster0+=1
+                cluster0 += 1
             if row['cluster'] == 1 and row['set'] == 20:
-                cluster1+=1
+                cluster1 += 1
             if cluster0 > cluster1:
-                popular_clusters[self.countryname[11:-17]] = 0 #CLUSTER 0 ES EL POPULAR
+                # CLUSTER 0 ES EL POPULAR
+                popular_clusters[self.countryname[11:-17]] = 0
             else:
-                popular_clusters[self.countryname[11:-17]] = 1 #CLUSTER 1 ES EL POPULAR
+                # CLUSTER 1 ES EL POPULAR
+                popular_clusters[self.countryname[11:-17]] = 1
 
-        
         print(popular_clusters)
 
         return popular_clusters
 
 
 def main(desc,pops):
+
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         if filename.endswith(".json"):
@@ -84,13 +96,13 @@ def main(desc,pops):
             KMA.return_desc()
             KMA.decide_popular_cluster()
     # COMMENTED TO NOT STDOUT to EXCEL XML
-    # descriptions.to_excel('countries.xlsx')
-    
-    #popular cluster -> dataframe -> excel
+    descriptions.to_excel('countries_massive.xlsx')
+
+    # popular cluster -> dataframe -> excel
     pop_cluster = pd.DataFrame.from_dict(list(pops.items()))
-    pop_cluster.to_excel('pop_clusters_per_country.xlsx')
+    pop_cluster.to_excel('pop_clusters_per_country_massive.xlsx')
 
 
-main(descriptions,popular_clusters)
+main(descriptions, popular_clusters)
 
 # %%
