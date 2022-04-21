@@ -2,12 +2,22 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 import os
+import seaborn as sns
+import cufflinks as cf
+import matplotlib.pyplot as plt
+plt.show()
+#%matplotlib inline
+
 datasetpath = 'tf_mini.csv'
 directory = os.fsencode('playlists')
 global descriptions
 descriptions = pd.DataFrame()
 global popular_clusters
 popular_clusters = {}
+
+cf.go_offline()
+cf.set_config_file(world_readable=True,theme='pearl')
+
 # %%
 
 
@@ -38,6 +48,11 @@ class k_means_structure:
         self.fullframe['cluster'] = self.kmeans.labels_
         centroids = pd.DataFrame(self.kmeans.cluster_centers_)
         print(centroids)
+        #PLOTTING
+        self.fullframe.sample(n=50).iplot(kind='scatter3d', x='energy', y='valence', z='tempo', width=0.5,margin=(0,0,0,0),opacity=1,size=15)
+        #sns.pairplot(self.fullframe.sample(n=50), hue="cluster")
+        
+        
         if self.debug is True:
             # DEBUGGING PRINTS
             print(f"LABELS: {self.kmeans.labels_}")
@@ -84,7 +99,7 @@ class k_means_structure:
         return popular_clusters
 
 
-def main(desc, pops):
+def main(pops):
 
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
@@ -94,14 +109,15 @@ def main(desc, pops):
             KMA = k_means_structure(datasetpath, path, filename)
             KMA.return_desc()
             KMA.decide_popular_cluster()
+            #df = pd.read_excel('countries_massive.xlsx')
     # COMMENTED TO NOT STDOUT to EXCEL XML
     descriptions.to_excel('countries_massive.xlsx')
-
     # popular cluster -> dataframe -> excel
     pop_cluster = pd.DataFrame.from_dict(list(pops.items()))
     pop_cluster.to_excel('pop_clusters_per_country_massive.xlsx')
 
+#%%
 
-main(descriptions, popular_clusters)
+main(popular_clusters)
 
 # %%
